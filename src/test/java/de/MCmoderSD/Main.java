@@ -52,14 +52,14 @@ public class Main {
             System.out.println("Loaded all images from absolute path.");
             System.out.println("Loading images from URL...");
 
-            String url = "https://raw.githubusercontent.com/MCmoderSD/ImageLoader/refs/heads/master/src/main/resources/samples/sample."; // Removed leading slash
+            String url = "https://raw.githubusercontent.com/MCmoderSD/ImageLoader/refs/heads/master/src/test/resources/samples/sample."; // Removed leading slash
             for (String extension : extensions) {
 
                 // Debug
                 System.out.println("Loading image: " + url + extension);
 
                 // Load image
-                BufferedImage image = imageLoader.load(url + extension, true);
+                BufferedImage image = imageLoader.load(url + extension, false);
 
                 // Show image
                 showImage(image, extension);

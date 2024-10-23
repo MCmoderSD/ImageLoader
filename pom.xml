@@ -6,7 +6,7 @@
 
     <groupId>de.MCmoderSD</groupId>
     <artifactId>imageloader</artifactId>
-    <version>1.0</version>
+    <version>1.0.0</version>
 
     <name>ImageLoader</name>
     <description>A simple ImageLoader that can read images from the resources folder, absolute paths and URL's</description>
