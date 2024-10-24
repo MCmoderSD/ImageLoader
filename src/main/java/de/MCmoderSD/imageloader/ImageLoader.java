@@ -1,6 +1,3 @@
-/**
- * Package containing utilities for handling image loading and caching.
- */
 package de.MCmoderSD.imageloader;
 
 import javax.imageio.ImageIO;
@@ -15,7 +12,7 @@ import java.util.HashMap;
 
 /**
  * The {@code ImageLoader} class provides methods for loading images from various sources
- * (file system, URL, or resources) and caching them to optimize performance. 
+ * (file system, URL, or resources) and caching them to optimize performance.
  * The cache stores loaded images, allowing them to be reused without needing to reload from disk or network.
  */
 @SuppressWarnings("ALL")
@@ -24,30 +21,36 @@ public class ImageLoader {
     /**
      * A cache storing images that have been loaded, mapped by their file paths.
      */
-    public HashMap<String, BufferedImage> cache = new HashMap<>();
+    private final HashMap<String, BufferedImage> cache = new HashMap<>();
 
     /**
-     * Loads an image from the specified path. If the image is cached, it will be returned from the cache.
-     * The method defaults to treating the path as relative unless specified otherwise.
+     * Loads an image from the specified file path or URL. If the image is already cached, it is returned from the cache,
+     * avoiding the need for reloading. By default, the path is treated as relative unless specified otherwise.
      *
-     * @param path the file path or URL of the image to load.
-     * @return the loaded {@code BufferedImage} object.
-     * @throws IOException if an error occurs during loading the image.
-     * @throws URISyntaxException if the path provided is an invalid URI.
+     * <p>This method provides efficient image loading with caching to improve performance when handling multiple image requests.
+     * If the image format is unsupported or the path is invalid, an appropriate exception is thrown.</p>
+     *
+     * @param path the file path or URL of the image to load. Can be a local file path or a web URL.
+     * @return the loaded {@code BufferedImage} object, or a cached version if already loaded.
+     * @throws IOException if an error occurs during loading the image, such as a missing file or unsupported format.
+     * @throws URISyntaxException if the provided path is an invalid URI format.
      */
     public BufferedImage load(String path) throws IOException, URISyntaxException {
         return load(path, false);
     }
 
     /**
-     * Loads an image from the specified path. If the image is cached, it will be returned from the cache.
-     * The path can be absolute or relative based on the {@code isAbsolute} parameter.
+     * Loads an image from the specified file path or URL, with an option to specify whether the path is absolute or relative.
+     * If the image is already cached, it is returned from the cache, bypassing the need for reloading.
      *
-     * @param path the file path or URL of the image to load.
-     * @param isAbsolute a boolean flag indicating if the path is absolute.
-     * @return the loaded {@code BufferedImage} object.
-     * @throws IOException if an error occurs during loading the image or if the image format is unsupported.
-     * @throws URISyntaxException if the path provided is an invalid URI.
+     * <p>This method provides efficient image loading by checking the cache first, and it supports absolute and relative paths,
+     * as well as URLs. If the image format is unsupported or the path is invalid, an appropriate exception is thrown.</p>
+     *
+     * @param path the file path or URL of the image to load. Can be a local file path or a web URL.
+     * @param isAbsolute a boolean flag indicating whether the provided path is an absolute path. If {@code false}, the path is treated as relative.
+     * @return the loaded {@code BufferedImage} object, or a cached version if already loaded.
+     * @throws IOException if an error occurs during loading, such as a missing file or unsupported format.
+     * @throws URISyntaxException if the provided path is an invalid URI.
      */
     public BufferedImage load(String path, boolean isAbsolute) throws IOException, URISyntaxException {
 
@@ -72,14 +75,18 @@ public class ImageLoader {
     }
 
     /**
-     * Loads an image from a file path, URL, or resource folder. This is a static utility method that supports
-     * loading from absolute paths, URLs, or relative paths within the resources folder.
+     * Loads an image from the specified source, which can be a file path, URL, or resource folder.
+     * Supports loading from absolute paths, URLs, or relative paths within the classpath resource folder.
      *
-     * @param path the file path, URL, or resource location of the image.
-     * @param isAbsolute a boolean flag indicating if the path is absolute.
+     * <p>If the image is loaded from a file system, an absolute or relative path is supported. If the image is loaded
+     * from a URL, the path must start with {@code http://} or {@code https://}. If the image is located in the resources folder,
+     * the method will search for it within the classpath.</p>
+     *
+     * @param path the file path, URL, or resource location of the image. Can be a local file, web URL, or resource path.
+     * @param isAbsolute a boolean flag indicating if the provided path is absolute. If {@code false}, the path is treated as relative.
      * @return the loaded {@code BufferedImage} object.
-     * @throws IOException if an error occurs during loading the image or if the path is invalid.
-     * @throws URISyntaxException if the path is an invalid URI.
+     * @throws IOException if an error occurs during loading, such as a missing file, invalid path, or unsupported image format.
+     * @throws URISyntaxException if the provided path is an invalid URI format (when loading from a URL).
      */
     public static BufferedImage loadImage(String path, boolean isAbsolute) throws IOException, URISyntaxException {
 
@@ -91,15 +98,15 @@ public class ImageLoader {
         if (!Arrays.asList("bmp", "gif", "hdr", "jpeg", "jpg", "png", "tiff", "webp").contains(getExtension(path)))
             throw new IOException("Unsupported image format: " + getExtension(path));
 
-        // Load image from different sources based on the path
-        if (isAbsolute) {
+        // Load image based on path type
+        if (isAbsolute) { // Load image from absolute path
             File file = new File(path);
             if (!file.exists()) throw new IOException("Image file not found: " + path);
             return ImageIO.read(file);
-        } else if (path.startsWith("http://") || path.startsWith("https://")) {
+        } else if (path.startsWith("http://") || path.startsWith("https://")) { // Load image from URL
             URI uri = new URI(path);
             return ImageIO.read(uri.toURL());
-        } else {
+        } else { // Load image from resources folder
             if (path.startsWith("/")) path = path.substring(1);
             URL resource = ImageLoader.class.getClassLoader().getResource(path);
             if (resource == null) throw new IOException("Image resource not found: " + path);
@@ -113,7 +120,7 @@ public class ImageLoader {
      * @param path the file path of the image.
      * @return the file extension in lowercase.
      */
-    private static String getExtension(String path) {
+    public static String getExtension(String path) {
         return path.substring(path.lastIndexOf(".") + 1).toLowerCase();
     }
 
@@ -123,7 +130,7 @@ public class ImageLoader {
      * @param path the file path or key for the image.
      * @param image the {@code BufferedImage} to cache.
      */
-    public void put(String path, BufferedImage image) {
+    public void add(String path, BufferedImage image) {
         cache.put(path, image);
     }
 
@@ -144,6 +151,15 @@ public class ImageLoader {
      */
     public void remove(String path) {
         cache.remove(path);
+    }
+
+    /**
+     * Removes an image from the cache based on its {@code BufferedImage}.
+     *
+     * @param image the {@code BufferedImage} to be removed from the cache.
+     */
+    public void remove(BufferedImage image) {
+        cache.remove(get(image));
     }
 
     /**
@@ -169,7 +185,19 @@ public class ImageLoader {
      * @return the cached {@code BufferedImage}, or {@code null} if not present.
      */
     public BufferedImage get(String path) {
-        return cache.get(path);
+        if (contains(path)) return cache.get(path);
+        else return null;
+    }
+
+    /**
+     * Retrieves a specific path from the cache based on its {@code BufferedImage}.
+     *
+     * @param image the {@code BufferedImage} to search for in the cache.
+     * @return the file path or key for the image, or {@code null} if not present.
+     */
+    public String get(BufferedImage image) {
+        if (contains(image)) for (String key : cache.keySet()) if (cache.get(key).equals(image)) return key;
+        return null;
     }
 
     /**

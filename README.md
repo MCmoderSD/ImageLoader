@@ -20,7 +20,7 @@ Supported image formats:
     <dependency>
         <groupId>de.MCmoderSD</groupId>
         <artifactId>imageloader</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
     </dependency>
 </dependencies>
 ```
