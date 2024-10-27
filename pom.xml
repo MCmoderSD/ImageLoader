@@ -6,7 +6,7 @@
 
     <groupId>de.MCmoderSD</groupId>
     <artifactId>imageloader</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 
     <name>ImageLoader</name>
     <description>A simple ImageLoader that can read images from the resources folder, absolute paths and URL's</description>
@@ -24,13 +24,6 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>ImageLoader</id>
-            <url>https://maven.pkg.github.com/MCmoderSD/ImageLoader</url>
-        </repository>
-    </repositories>
 
     <dependencies>
 

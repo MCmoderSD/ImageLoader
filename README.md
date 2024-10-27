@@ -23,7 +23,7 @@ Supported image formats:
     <dependency>
         <groupId>de.MCmoderSD</groupId>
         <artifactId>imageloader</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
     </dependency>
 </dependencies>
 ```
@@ -76,9 +76,7 @@ public class Main {
 import de.MCmoderSD.imageloader.AnimationLoader;
 
 import javax.swing.ImageIcon;
-
 import java.io.IOException;
-
 import java.net.URISyntaxException;
 
 public class AnimationExample {
