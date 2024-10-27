@@ -1,17 +1,20 @@
 package de.MCmoderSD.imageloader;
 
 import javax.imageio.ImageIO;
+
 import java.awt.image.BufferedImage;
+
 import java.io.File;
 import java.io.IOException;
+
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
+
 import java.util.Arrays;
 import java.util.HashMap;
 
 /**
- * The {@code ImageLoader} class provides methods for loading images from various sources
+ * The {@code AnimationLoader} class provides methods for loading images from various sources
  * (file system, URL, or resources) and caching them to optimize performance.
  * The cache stores loaded images, allowing them to be reused without needing to reload from disk or network.
  */
@@ -95,22 +98,14 @@ public class ImageLoader {
         if (path.endsWith(".")) throw new IOException("Image path is missing file extension: " + path);
 
         // Ensure image format is supported
-        if (!Arrays.asList("bmp", "gif", "hdr", "jpeg", "jpg", "png", "tiff", "webp").contains(getExtension(path)))
-            throw new IOException("Unsupported image format: " + getExtension(path));
+        if (!Arrays.asList("bmp", "gif", "hdr", "jpeg", "jpg", "png", "tiff", "webp").contains(getExtension(path))) throw new IOException("Unsupported image format: " + getExtension(path));
 
         // Load image based on path type
-        if (isAbsolute) { // Load image from absolute path
-            File file = new File(path);
-            if (!file.exists()) throw new IOException("Image file not found: " + path);
-            return ImageIO.read(file);
-        } else if (path.startsWith("http://") || path.startsWith("https://")) { // Load image from URL
-            URI uri = new URI(path);
-            return ImageIO.read(uri.toURL());
-        } else { // Load image from resources folder
-            if (path.startsWith("/")) path = path.substring(1);
-            URL resource = ImageLoader.class.getClassLoader().getResource(path);
-            if (resource == null) throw new IOException("Image resource not found: " + path);
-            return ImageIO.read(resource);
+        if (isAbsolute) return ImageIO.read(new File(path));
+        else if (path.startsWith("http://") || path.startsWith("https://")) return ImageIO.read(new URI(path).toURL());
+        else {
+            while (path.startsWith("/")) path = path.substring(1);
+            return ImageIO.read( AnimationLoader.class.getClassLoader().getResource(path));
         }
     }
 
@@ -196,7 +191,7 @@ public class ImageLoader {
      * @return the file path or key for the image, or {@code null} if not present.
      */
     public String get(BufferedImage image) {
-        if (contains(image)) for (String key : cache.keySet()) if (cache.get(key).equals(image)) return key;
+        if (contains(image)) for (String path : cache.keySet()) if (cache.get(path).equals(image)) return path;
         return null;
     }
 
