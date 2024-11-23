@@ -1,4 +1,8 @@
 # ImageLoader
+[![](https://jitpack.io/v/MCmoderSD/ImageLoader.svg)](https://jitpack.io/#MCmoderSD/ImageLoader)
+
+
+## Description
 This is a simple ImageLoader that can load images from the resources folder, absolute paths or URL's.
 
 For Static Images or GIFs', you can use the `ImageLoader` class.
@@ -18,15 +22,24 @@ Supported image formats:
 ## Usage
 
 ### Maven
+Make sure you have the JitPack repository added to your `pom.xml` file:
 ```xml
-<dependencies>
-    <dependency>
-        <groupId>de.MCmoderSD</groupId>
-        <artifactId>imageloader</artifactId>
-        <version>1.0.3</version>
-    </dependency>
-</dependencies>
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
 ```
+Add the dependency to your `pom.xml` file:
+```xml
+<dependency>
+    <groupId>com.github.MCmoderSD</groupId>
+    <artifactId>imageloader</artifactId>
+    <version>1.0.3</version>
+</dependency>
+```
+
 
 ## Usage Example
 
