@@ -35,7 +35,7 @@ Add the dependency to your `pom.xml` file:
 ```xml
 <dependency>
     <groupId>com.github.MCmoderSD</groupId>
-    <artifactId>imageloader</artifactId>
+    <artifactId>ImageLoader</artifactId>
     <version>1.0.3</version>
 </dependency>
 ```
