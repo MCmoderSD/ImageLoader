@@ -5,17 +5,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.MCmoderSD</groupId>
-    <artifactId>imageloader</artifactId>
-    <version>1.0.3</version>
+    <artifactId>ImageLoader</artifactId>
+    <version>1.1.0</version>
 
-    <name>ImageLoader</name>
+    <name>Image Loader</name>
     <description>A simple ImageLoader that can read images from the resources folder, absolute paths and URL's</description>
 
     <distributionManagement>
         <repository>
-            <id>ImageLoader</id>
-            <name>GitHub MCmoderSD Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/MCmoderSD/ImageLoader</url>
+            <id>Nexus</id>
+            <name>Sonatype Nexus</name>
+            <url>https://mcmodersd.de/nexus/repository/maven-releases/</url>
         </repository>
     </distributionManagement>
 
