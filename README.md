@@ -16,6 +16,7 @@ Supported image formats:
 - [x] png 
 - [x] tiff 
 - [x] webp
+- [x] base64 encoded images
 
 ## Usage
 
@@ -35,7 +36,7 @@ Add the dependency to your `pom.xml` file:
 <dependency>
     <groupId>de.MCmoderSD</groupId>
     <artifactId>ImageLoader</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
 </dependency>
 ```
 
@@ -50,6 +51,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+@SuppressWarnings("ALL")
 public class Main {
 
     // Main method
@@ -91,6 +93,7 @@ import javax.swing.ImageIcon;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+@SuppressWarnings("ALL")
 public class AnimationExample {
 
     public static void main(String[] args) {

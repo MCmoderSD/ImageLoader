@@ -4,6 +4,7 @@ import javax.imageio.ImageIO;
 
 import java.awt.image.BufferedImage;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 
@@ -11,6 +12,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 
 /**
@@ -65,7 +67,7 @@ public class ImageLoader {
 
         // Load image based on extension
         BufferedImage image = switch (extension) {
-            case "bmp", "gif", "hdr", "jpeg", "jpg", "png", "tiff", "webp" -> loadImage(path, isAbsolute);
+            case "bmp", "gif", "hdr", "jpeg", "jpg", "png", "tiff", "webp", "base64" -> loadImage(path, isAbsolute);
             default -> throw new IOException("Unsupported image format: " + extension);
         };
 
@@ -78,14 +80,14 @@ public class ImageLoader {
     }
 
     /**
-     * Loads an image from the specified source, which can be a file path, URL, or resource folder.
-     * Supports loading from absolute paths, URLs, or relative paths within the classpath resource folder.
+     * Loads an image from the specified source, which can be a file path, URL, resource folder, or base64 encoded string.
+     * Supports loading from absolute paths, URLs, relative paths within the classpath resource folder, or base64 encoded images.
      *
      * <p>If the image is loaded from a file system, an absolute or relative path is supported. If the image is loaded
      * from a URL, the path must start with {@code http://} or {@code https://}. If the image is located in the resources folder,
-     * the method will search for it within the classpath.</p>
+     * the method will search for it within the classpath. If the image is base64 encoded, it must start with {@code data:image/}.</p>
      *
-     * @param path the file path, URL, or resource location of the image. Can be a local file, web URL, or resource path.
+     * @param path the file path, URL, resource location, or base64 encoded string of the image. Can be a local file, web URL, resource path, or base64 string.
      * @param isAbsolute a boolean flag indicating if the provided path is absolute. If {@code false}, the path is treated as relative.
      * @return the loaded {@code BufferedImage} object.
      * @throws IOException if an error occurs during loading, such as a missing file, invalid path, or unsupported image format.
@@ -98,10 +100,11 @@ public class ImageLoader {
         if (path.endsWith(".")) throw new IOException("Image path is missing file extension: " + path);
 
         // Ensure image format is supported
-        if (!Arrays.asList("bmp", "gif", "hdr", "jpeg", "jpg", "png", "tiff", "webp").contains(getExtension(path))) throw new IOException("Unsupported image format: " + getExtension(path));
+        if (!Arrays.asList("bmp", "gif", "hdr", "jpeg", "jpg", "png", "tiff", "webp").contains(getExtension(path)) && !path.startsWith("data:image/")) throw new IOException("Unsupported image format: " + getExtension(path));
 
         // Load image based on path type
-        if (isAbsolute) return ImageIO.read(new File(path));
+        if (path.startsWith("data:image/")) return ImageIO.read(new ByteArrayInputStream(Base64.getDecoder().decode(path.substring(path.indexOf(",") + 1))));
+        else if (isAbsolute) return ImageIO.read(new File(path));
         else if (path.startsWith("http://") || path.startsWith("https://")) return ImageIO.read(new URI(path).toURL());
         else {
             while (path.startsWith("/")) path = path.substring(1);
@@ -116,6 +119,7 @@ public class ImageLoader {
      * @return the file extension in lowercase.
      */
     public static String getExtension(String path) {
+        if (path.startsWith("data:image/")) return "base64";
         var queryIndex = path.indexOf('?');
         if (queryIndex != -1) path = path.substring(0, queryIndex);
         return path.substring(path.lastIndexOf(".") + 1).toLowerCase();
