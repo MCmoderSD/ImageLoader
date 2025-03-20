@@ -105,7 +105,7 @@ public class ImageLoader {
         else if (path.startsWith("http://") || path.startsWith("https://")) return ImageIO.read(new URI(path).toURL());
         else {
             while (path.startsWith("/")) path = path.substring(1);
-            return ImageIO.read( AnimationLoader.class.getClassLoader().getResource(path));
+            return ImageIO.read(ImageLoader.class.getClassLoader().getResource(path));
         }
     }
 
@@ -116,6 +116,8 @@ public class ImageLoader {
      * @return the file extension in lowercase.
      */
     public static String getExtension(String path) {
+        var queryIndex = path.indexOf('?');
+        if (queryIndex != -1) path = path.substring(0, queryIndex);
         return path.substring(path.lastIndexOf(".") + 1).toLowerCase();
     }
 

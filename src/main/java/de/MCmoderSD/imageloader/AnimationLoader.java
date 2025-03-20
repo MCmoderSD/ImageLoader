@@ -87,6 +87,8 @@ public class AnimationLoader {
      * @return the file extension as a lowercase string
      */
     public static String getExtension(String path) {
+        var queryIndex = path.indexOf('?');
+        if (queryIndex != -1) path = path.substring(0, queryIndex);
         return path.substring(path.lastIndexOf(".") + 1).toLowerCase();
     }
 
