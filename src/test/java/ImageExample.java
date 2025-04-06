@@ -76,7 +76,7 @@ public class ImageExample {
     }
 
     // Show image
-    public static void showImage(BufferedImage image, String extension) {
+    private static void showImage(BufferedImage image, String extension) {
 
         // Create frame
         JFrame frame = new JFrame("Image: " + extension);

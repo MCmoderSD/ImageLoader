@@ -45,7 +45,7 @@ public class AnimationExample {
     }
 
     // Show image
-    public static void showAnimation(ImageIcon animation, String extension) {
+    private static void showAnimation(ImageIcon animation, String extension) {
 
         // Create frame
         JFrame frame = new JFrame("Image: " + extension);
