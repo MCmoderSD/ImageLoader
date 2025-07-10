@@ -1,4 +1,4 @@
-import de.MCmoderSD.imageloader.ImageLoader;
+import de.MCmoderSD.imageloader.core.ImageLoader;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -12,18 +12,17 @@ import java.io.IOException;
 
 import java.net.URISyntaxException;
 
-@SuppressWarnings("ALL")
 public class ImageExample {
 
     public static void main(String[] args) {
         try {
 
             // Initialize ImageLoader
-            ImageLoader imageLoader = new ImageLoader();
+            ImageLoader imageLoader = ImageLoader.getInstance();
 
             // Path to images
-            String path = "/samples/sample."; // Removed leading slash
-            String[] extensions = {"bmp", "gif", "hdr", "jpeg", "jpg", "png", "tiff", "webp"};
+            String path = "/samples/sample.";
+            String[] extensions = {"jpeg", "jpg", "png", "bmp", "tiff", "gif", "webp"};
 
             System.out.println("Loading images...");
             for (String extension : extensions) {
@@ -41,7 +40,7 @@ public class ImageExample {
             System.out.println("Loaded all images.");
             System.out.println("Loading images from absolute path...");
 
-            String absolute = "C:/Users/MCmoderSD/IdeaProjects/Packages/ImageLoader/src/test/resources"; // Removed leading slash
+            String absolute = "C:/Users/MCmoderSD/IdeaProjects/Packages/ImageLoader/src/test/resources";
             for (String extension : extensions) {
 
                 // Debug
@@ -57,7 +56,7 @@ public class ImageExample {
             System.out.println("Loaded all images from absolute path.");
             System.out.println("Loading images from URL...");
 
-            String url = "https://raw.githubusercontent.com/MCmoderSD/ImageLoader/refs/heads/master/src/test/resources/samples/sample."; // Removed leading slash
+            String url = "https://raw.githubusercontent.com/MCmoderSD/ImageLoader/refs/heads/master/src/test/resources/samples/sample.";
             for (String extension : extensions) {
 
                 // Debug

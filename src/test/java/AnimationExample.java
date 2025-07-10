@@ -1,4 +1,4 @@
-import de.MCmoderSD.imageloader.AnimationLoader;
+import de.MCmoderSD.imageloader.core.AnimationLoader;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -20,7 +20,7 @@ public class AnimationExample {
         try {
 
             // Initialize AnimationLoader
-            AnimationLoader animationLoader = new AnimationLoader();
+            AnimationLoader animationLoader = AnimationLoader.getInstance();
 
             // Load from resources
             ImageIcon animation = animationLoader.load("/animations/apple.gif");
@@ -33,11 +33,6 @@ public class AnimationExample {
             // Load from URL
             animation = animationLoader.load("https://raw.githubusercontent.com/MCmoderSD/ImageLoader/refs/heads/master/src/test/resources/animations/apple.gif");
             showAnimation(animation, "gif");
-
-            // Static calls
-            animation = AnimationLoader.loadAnimation("/animations/apple.gif", false);
-            animation = AnimationLoader.loadAnimation("C:/Users/MCmoderSD/IdeaProjects/Packages/ImageLoader/src/test/resources/animations/apple.gif", true);
-            animation = AnimationLoader.loadAnimation("https://raw.githubusercontent.com/MCmoderSD/ImageLoader/refs/heads/master/src/test/resources/animations/apple.gif", false);
 
         } catch (IOException | URISyntaxException e) {
             System.err.println("An error occurred while loading images: " + e.getMessage());
@@ -83,7 +78,7 @@ public class AnimationExample {
                 panel.repaint();
                 try {
                     //noinspection BusyWait
-                    Thread.sleep(1000 / 30);
+                    Thread.sleep(1000 / 60); // 60 FPS
                 } catch (InterruptedException e) {
                     System.err.println("An error occurred while showing animation: " + e.getMessage());
                 }
