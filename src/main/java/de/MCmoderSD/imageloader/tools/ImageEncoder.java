@@ -16,7 +16,7 @@ import java.util.Iterator;
  * Utility class for encoding BufferedImages to byte arrays or Base64 strings.
  */
 @SuppressWarnings("ALL")
-public class Encoder {
+public class ImageEncoder {
 
     /**
      * Encodes a BufferedImage into a byte array using the specified image format.

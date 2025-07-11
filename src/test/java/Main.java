@@ -1,7 +1,7 @@
 import de.MCmoderSD.imageloader.core.ImageLoader;
 import de.MCmoderSD.imageloader.enums.Extension;
-import de.MCmoderSD.imageloader.tools.Encoder;
-import de.MCmoderSD.imageloader.tools.Resizer;
+import de.MCmoderSD.imageloader.tools.ImageEncoder;
+import de.MCmoderSD.imageloader.tools.ImageResizer;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -23,11 +23,11 @@ public class Main {
         // Initialize ImageLoader
         ImageLoader imageLoader = ImageLoader.getInstance();
 
-        BufferedImage originalImage = imageLoader.load("/samples/sample.png");          // Load from resources
-        String base64Image = Encoder.toBase64(originalImage, Extension.JPG, 0.25f);     // Convert to Base64 with compression
-        BufferedImage compressedImage = imageLoader.load(base64Image);                  // Load from Base64 string
-        BufferedImage resizedImage = Resizer.scale(compressedImage, 0.5f);              // Resize image to 50% of original size
-        showImage(resizedImage, "jpg");                                                 // Show resized image
+        BufferedImage originalImage = imageLoader.load("/samples/sample.png");              // Load from resources
+        String base64Image = ImageEncoder.toBase64(originalImage, Extension.JPG, 0.25f);    // Convert to Base64 with compression
+        BufferedImage compressedImage = imageLoader.load(base64Image);                      // Load from Base64 string
+        BufferedImage resizedImage = ImageResizer.scale(compressedImage, 0.5f);             // Resize image to 50% of original size
+        showImage(resizedImage, "jpg");                                                     // Show resized image
     }
 
     // Show image

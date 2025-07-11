@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
  * Utility class for resizing and scaling {@link BufferedImage} instances with high quality.
  */
 @SuppressWarnings("ALL")
-public class Resizer {
+public class ImageResizer {
 
     /**
      * Resizes a {@link BufferedImage} to a square of the given size.
