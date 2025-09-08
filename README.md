@@ -58,6 +58,7 @@ import java.io.IOException;
 
 import java.net.URISyntaxException;
 
+@SuppressWarnings("ALL")
 public class ImageExample {
 
     public static void main(String[] args) {
