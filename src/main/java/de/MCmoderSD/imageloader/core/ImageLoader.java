@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Singleton class for loading and caching static images in BufferedImage format.
@@ -23,13 +23,13 @@ public class ImageLoader {
     private static ImageLoader instance;
 
     // Cache for storing loaded BufferedImages
-    private final HashMap<String, BufferedImage> cache;
+    private final ConcurrentHashMap<String, BufferedImage> cache;
 
     /**
      * Private constructor to enforce singleton pattern.
      */
     private ImageLoader() {
-        cache = new HashMap<>();
+        cache = new ConcurrentHashMap<>();
     }
 
     /**
@@ -181,7 +181,7 @@ public class ImageLoader {
      *
      * @return the image cache
      */
-    public HashMap<String, BufferedImage> get() {
+    public ConcurrentHashMap<String, BufferedImage> get() {
         return cache;
     }
 

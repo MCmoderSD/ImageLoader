@@ -6,8 +6,8 @@ import javax.swing.ImageIcon;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Singleton class for loading and caching animated images (e.g., GIFs).
@@ -19,13 +19,13 @@ public class AnimationLoader {
     private static AnimationLoader instance;
 
     // Cache for storing loaded ImageIcons
-    private final HashMap<String, ImageIcon> cache;
+    private final ConcurrentHashMap<String, ImageIcon> cache;
 
     /**
      * Private constructor to enforce singleton pattern.
      */
     private AnimationLoader() {
-        cache = new HashMap<>();
+        cache = new ConcurrentHashMap<>();
     }
 
     /**
@@ -177,7 +177,7 @@ public class AnimationLoader {
      *
      * @return the image cache
      */
-    public HashMap<String, ImageIcon> get() {
+    public ConcurrentHashMap<String, ImageIcon> get() {
         return cache;
     }
 

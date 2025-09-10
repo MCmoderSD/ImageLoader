@@ -34,7 +34,7 @@ Add the dependency to your `pom.xml` file:
 <dependency>
     <groupId>de.MCmoderSD</groupId>
     <artifactId>ImageLoader</artifactId>
-    <version>1.3.1</version>
+    <version>1.3.2</version>
 </dependency>
 ```
 
