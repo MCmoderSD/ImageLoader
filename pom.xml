@@ -6,7 +6,7 @@
 
     <groupId>de.MCmoderSD</groupId>
     <artifactId>ImageLoader</artifactId>
-    <version>1.4.0</version>
+    <version>1.4.1</version>
 
     <name>Image Loader</name>
     <description>A simple ImageLoader that can read images from the resources folder, absolute paths and URL's</description>
@@ -42,10 +42,24 @@
             <version>3.13.0</version>
         </dependency>
 
+        <!-- JPEG -->
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-jpeg</artifactId>
+            <version>3.13.0</version>
+        </dependency>
+
         <!-- BMP -->
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-bmp</artifactId>
+            <version>3.13.0</version>
+        </dependency>
+
+        <!-- TIFF -->
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-tiff</artifactId>
             <version>3.13.0</version>
         </dependency>
 
