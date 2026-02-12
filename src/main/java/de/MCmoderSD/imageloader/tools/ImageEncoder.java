@@ -12,34 +12,18 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.Iterator;
 
-/**
- * Utility class for encoding BufferedImages to byte arrays or Base64 strings.
- */
-@SuppressWarnings("ALL")
+@SuppressWarnings("unused")
 public class ImageEncoder {
 
-    /**
-     * Encodes a BufferedImage into a byte array using the specified image format.
-     *
-     * @param image     the image to encode
-     * @param extension the image format (e.g., PNG, JPEG)
-     * @return the encoded byte array
-     * @throws IOException if encoding fails
-     */
-    public static byte[] encode(BufferedImage image, Extension extension) throws IOException {
+    public static byte[] encode(BufferedImage image, Extension extension) {
         return encode(image, extension, -1f);
     }
 
-    /**
-     * Encodes a BufferedImage into a byte array with optional quality setting.
-     *
-     * @param image     the image to encode
-     * @param extension the image format (e.g., PNG, JPEG)
-     * @param quality   the compression quality (0.0 to 1.0) or -1 for default
-     * @return the encoded byte array
-     * @throws IOException if encoding fails
-     */
-    public static byte[] encode(BufferedImage image, Extension extension, float quality) throws IOException {
+    public static byte[] encode(BufferedImage image, Extension extension, float quality) {
+
+        // Validate input
+        if (image == null) throw new IllegalArgumentException("Image cannot be null");
+        if (extension == null) throw new IllegalArgumentException("Extension cannot be null");
 
         // Create ByteArrayOutputStream
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -49,49 +33,40 @@ public class ImageEncoder {
         if (!writers.hasNext()) throw new IllegalArgumentException("No ImageWriter for format: " + extension.getExtension());
         ImageWriter writer = writers.next();
 
-        // Set up ImageWriter
-        writer.setOutput(ImageIO.createImageOutputStream(byteArrayOutputStream));
-        ImageWriteParam param = writer.getDefaultWriteParam();
+        // Write image to ByteArrayOutputStream
+        try (var outputStream = ImageIO.createImageOutputStream(byteArrayOutputStream)) {
 
-        if (param.canWriteCompressed() && quality >= 0f && quality <= 1f) {
-            param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-            param.setCompressionQuality(quality);
+            // Set up ImageWriter
+            writer.setOutput(outputStream);
+            ImageWriteParam param = writer.getDefaultWriteParam();
+
+            // Set compression quality if supported and valid
+            if (param.canWriteCompressed() && quality >= 0f && quality <= 1f) {
+                param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                param.setCompressionQuality(quality);
+            }
+
+            // Write the image
+            writer.write(null, new IIOImage(image, null, null), param);
+
+            // Clean up
+            writer.dispose();
+            byteArrayOutputStream.flush();
+            byteArrayOutputStream.close();
+
+            // Return the encoded image as a byte array
+            return byteArrayOutputStream.toByteArray();
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to encode image: " + e.getMessage(), e);
         }
-
-        // Write the image
-        writer.write(null, new IIOImage(image, null, null), param);
-
-        // Clean up
-        writer.dispose();
-        byteArrayOutputStream.flush();
-        byteArrayOutputStream.close();
-
-        // Return the byte array
-        return byteArrayOutputStream.toByteArray();
     }
 
-    /**
-     * Converts a BufferedImage to a Base64-encoded string using default quality.
-     *
-     * @param image     the image to encode
-     * @param extension the image format (e.g., PNG, JPEG)
-     * @return the Base64-encoded data URI string
-     * @throws IOException if encoding fails
-     */
-    public static String toBase64(BufferedImage image, Extension extension) throws IOException {
+    public static String toBase64(BufferedImage image, Extension extension) {
         return String.format("data:image/%s;base64,%s", extension.getExtension().toLowerCase(), Base64.getEncoder().encodeToString(encode(image, extension)));
     }
 
-    /**
-     * Converts a BufferedImage to a Base64-encoded string with specified quality.
-     *
-     * @param image     the image to encode
-     * @param extension the image format (e.g., PNG, JPEG)
-     * @param quality   the compression quality (0.0 to 1.0)
-     * @return the Base64-encoded data URI string
-     * @throws IOException if encoding fails
-     */
-    public static String toBase64(BufferedImage image, Extension extension, float quality) throws IOException {
+    public static String toBase64(BufferedImage image, Extension extension, float quality) {
         return String.format("data:image/%s;base64,%s", extension.getExtension().toLowerCase(), Base64.getEncoder().encodeToString(encode(image, extension, quality)));
     }
 }

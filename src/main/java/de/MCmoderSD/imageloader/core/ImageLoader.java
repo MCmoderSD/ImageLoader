@@ -10,240 +10,229 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Base64;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Singleton class for loading and caching static images in BufferedImage format.
- */
-@SuppressWarnings("ALL")
+@SuppressWarnings({"unused", "BooleanMethodIsAlwaysInverted"})
 public class ImageLoader {
 
     // Singleton instance
     private static ImageLoader instance;
 
-    // Cache for storing loaded BufferedImages
+    // Attributes
     private final ConcurrentHashMap<String, BufferedImage> cache;
+    private final Base64.Decoder base64Decoder;
 
-    /**
-     * Private constructor to enforce singleton pattern.
-     */
+    // Constructor
     private ImageLoader() {
         cache = new ConcurrentHashMap<>();
+        base64Decoder = Base64.getDecoder();
     }
 
-    /**
-     * Returns the singleton instance of ImageLoader.
-     *
-     * @return ImageLoader instance
-     */
+    // Get Singleton Instance
     public static ImageLoader getInstance() {
         if (instance == null) instance = new ImageLoader();
         return instance;
     }
 
-    /**
-     * Loads an image from the given path using a relative path.
-     *
-     * @param path the path to the image
-     * @return the loaded BufferedImage
-     * @throws IOException if the image cannot be loaded
-     * @throws URISyntaxException if the path is a malformed URI
-     */
-    public BufferedImage load(String path) throws IOException, URISyntaxException {
-        return load(path, false);
+    // Helper Methods
+    private static boolean isValidImageExtension(String extension) {
+        try {
+            Extension.fromString(extension);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
-    /**
-     * Loads an image from the given path.
-     *
-     * @param path the path to the image
-     * @param isAbsolute whether the path is absolute
-     * @return the loaded BufferedImage
-     * @throws IOException if the image cannot be loaded
-     * @throws URISyntaxException if the path is a malformed URI
-     */
-    public BufferedImage load(String path, boolean isAbsolute) throws IOException, URISyntaxException {
+    // Read Methods
+    private BufferedImage readResource(String resourcePath) {
 
-        // Check Path
-        if (path.isBlank()) throw new IllegalArgumentException("Path cannot be blank");
+        // Load image from resource
+        try (var resource = ImageLoader.class.getResourceAsStream(resourcePath)) {
 
-        // Check if image is already in cache
-        if (cache.containsKey(path)) return cache.get(path);
+            // Check if resource exists
+            if (resource == null) throw new IOException("Resource not found: " + resourcePath);
 
-        // Reload the image
-        BufferedImage image = reload(path, isAbsolute);
+            // Parse and return image
+            return ImageIO.read(resource);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load image from resource: " + resourcePath, e);
+        }
+    }
 
-        // Check if image is null
-        if (image == null) throw new IOException("Image could not be loaded: " + path);
+    private BufferedImage readURL(String url) {
 
-        // Put the image in cache
-        cache.put(path, image);
+        // Load image from URL
+        try (var stream = new URI(url).toURL().openStream()) {
+            return ImageIO.read(stream);
+        } catch (IOException | URISyntaxException e) {
+            throw new RuntimeException("Failed to load image from URL: " + url, e);
+        }
+    }
 
-        // Return the loaded image
+    private BufferedImage readFile(String filePath) {
+
+        // Load image from File
+        File file = new File(filePath);
+
+        // Check if file exists
+        if (!file.exists()) throw new IllegalArgumentException("File not found: " + filePath);
+
+        try {
+            return ImageIO.read(file);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load image from file: " + filePath, e);
+        }
+    }
+
+    private BufferedImage readBase64(byte[] data) {
+
+        // Validate Base64 data
+        if (data == null || data.length == 0) throw new IllegalArgumentException("Base64 data cannot be null or empty");
+
+        // Load image from Base64 data
+        try (var inputStream = new ByteArrayInputStream(data)) {
+            return ImageIO.read(inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load image from Base64 data", e);
+        }
+    }
+
+    public BufferedImage loadResource(String resourcePath) {
+
+        // Check Parameters
+        if (resourcePath == null || resourcePath.isBlank()) throw new IllegalArgumentException("Resource path cannot be null or blank");
+
+        // Validate image extension
+        if (!isValidImageExtension(resourcePath.substring(resourcePath.lastIndexOf(".") + 1))) throw new IllegalArgumentException("Unsupported image format: " + resourcePath);
+
+        // Check Cache
+        if (cache.containsKey(resourcePath)) return cache.get(resourcePath);
+
+        // Load image and cache it
+        BufferedImage image = readResource(resourcePath);
+
+        // Check if image was loaded successfully
+        if (image == null) throw new RuntimeException("Failed to load image from resource: " + resourcePath);
+
+        // Cache
+        cache.put(resourcePath, image);
+
+        // Return image
         return image;
     }
 
-    /**
-     * Reloads an image from the given path using a relative path.
-     *
-     * @param path the path to the image
-     * @return the reloaded BufferedImage
-     * @throws IOException if the image cannot be loaded
-     * @throws URISyntaxException if the path is a malformed URI
-     */
-    public BufferedImage reload(String path) throws IOException, URISyntaxException {
-        return reload(path, false);
-    }
+    public BufferedImage loadURL(String url) {
 
-    /**
-     * Reloads an image from the given path.
-     *
-     * @param path the path to the image
-     * @param isAbsolute whether the path is absolute
-     * @return the reloaded BufferedImage
-     * @throws IOException if the image cannot be loaded
-     * @throws URISyntaxException if the path is a malformed URI
-     */
-    public BufferedImage reload(String path, boolean isAbsolute) throws IOException, URISyntaxException {
-
-        // Check Path
-        if (path.isBlank()) throw new IllegalArgumentException("Path cannot be blank");
+        // Check Parameters
+        if (url == null || url.isBlank()) throw new IllegalArgumentException("URL cannot be null or blank");
 
         // Validate image extension
-        boolean isBase64 = path.startsWith("data:image/");
-        Extension extension = isBase64 ?
-                Extension.fromString(path.substring("data:image/".length(), path.indexOf(";base64")).toLowerCase()) :
-                Extension.fromString(path.substring(path.lastIndexOf(".") + 1).toLowerCase());
+        if (!isValidImageExtension(url.substring(url.lastIndexOf(".") + 1))) throw new IllegalArgumentException("Unsupported image format: " + url);
 
-        // Check if extension is supported
-        if (extension == null) throw new IOException("Unsupported image format: " + path);
+        // Check Cache
+        if (cache.containsKey(url)) return cache.get(url);
 
-        // Load the image based on the path type
-        if (isAbsolute) return ImageIO.read(new File(path));                                                                                        // Absolute path
-        if (path.startsWith("http://") || path.startsWith("https://")) return ImageIO.read(new URI(path).toURL());                                  // URL path
-        if (isBase64) return ImageIO.read(new ByteArrayInputStream(Base64.getDecoder().decode(path.substring(path.indexOf(",") + 1))));         // Base64 encoded image
-        while (path.startsWith("/")) path = path.substring(1);                                                                                  // Remove leading slashes
-        return ImageIO.read(Objects.requireNonNull(ImageLoader.class.getClassLoader().getResourceAsStream(path)));                                  // Resource path
+        // Load image and cache it
+        BufferedImage image = readURL(url);
+
+        // Check if image was loaded successfully
+        if (image == null) throw new RuntimeException("Failed to load image from URL: " + url);
+
+        // Cache
+        cache.put(url, image);
+
+        // Return image
+        return image;
     }
 
-    /**
-     * Adds a BufferedImage to the cache.
-     *
-     * @param path the image path key
-     * @param image the BufferedImage to store
-     * @return the previous BufferedImage associated with the path, or null if none
-     */
-    public BufferedImage add(String path, BufferedImage image) {
-        return cache.put(path, image);
+    public BufferedImage loadFile(String filePath) {
+
+        // Check Parameters
+        if (filePath == null || filePath.isBlank()) throw new IllegalArgumentException("File path cannot be null or blank");
+
+        // Validate image extension
+        if (!isValidImageExtension(filePath.substring(filePath.lastIndexOf(".") + 1))) throw new IllegalArgumentException("Unsupported image format: " + filePath);
+
+        // Check Cache
+        if (cache.containsKey(filePath)) return cache.get(filePath);
+
+        // Load image and cache it
+        BufferedImage image = readFile(filePath);
+
+        // Check if image was loaded successfully
+        if (image == null) throw new RuntimeException("Failed to load image from file: " + filePath);
+
+        // Cache
+        cache.put(filePath, image);
+
+        // Return image
+        return image;
     }
 
-    /**
-     * Replaces an existing BufferedImage in the cache.
-     *
-     * @param path the image path key
-     * @param image the new BufferedImage
-     * @return the previous BufferedImage associated with the path
-     */
-    public BufferedImage replace(String path, BufferedImage image) {
-        return cache.replace(path, image);
+    public BufferedImage loadBase64(String base64) {
+
+        // Check Parameters
+        if (base64 == null || base64.isBlank()) throw new IllegalArgumentException("Base64 string cannot be null or blank");
+
+        // Validate Base64 format
+        if (!base64.startsWith("data:image/") || !base64.contains(";base64,")) throw new IllegalArgumentException("Invalid Base64 image format - expected format: data:image/{extension};base64,{data}");
+
+        // Validate image extension
+        String extensionPart = base64.substring("data:image/".length(), base64.indexOf(";base64")).toLowerCase();
+        if (!isValidImageExtension(extensionPart)) throw new IllegalArgumentException("Unsupported image format in Base64 string: " + extensionPart);
+
+        // Extract the actual Base64 data
+        String base64Data = base64.substring(base64.indexOf(",") + 1);
+
+        // Check Cache
+        if (cache.containsKey(base64)) return cache.get(base64);
+
+        // Load image and cache it
+        BufferedImage image = readBase64(base64Decoder.decode(base64Data));
+
+        // Check if image was loaded successfully
+        if (image == null) throw new RuntimeException("Failed to load image from Base64 string");
+
+        // Cache
+        cache.put(base64, image);
+
+        // Return image
+        return image;
     }
 
-    /**
-     * Removes a BufferedImage from the cache by path.
-     *
-     * @param path the path of the image
-     * @return the removed BufferedImage
-     */
-    public BufferedImage remove(String path) {
-        return cache.remove(path);
+    // Reload Methods
+    public BufferedImage reloadResource(String resourcePath) {
+        cache.remove(resourcePath);
+        return loadResource(resourcePath);
     }
 
-    /**
-     * Removes a BufferedImage from the cache by its value.
-     *
-     * @param image the BufferedImage to remove
-     * @return the removed BufferedImage
-     */
-    public BufferedImage remove(BufferedImage image) {
-        return cache.remove(get(image));
+    public BufferedImage reloadURL(String url) {
+        cache.remove(url);
+        return loadURL(url);
     }
 
-    /**
-     * Clears the entire image cache.
-     */
+    public BufferedImage reloadFile(String filePath) {
+        cache.remove(filePath);
+        return loadFile(filePath);
+    }
+
+    public BufferedImage reloadBase64(String base64) {
+        cache.remove(base64);
+        return loadBase64(base64);
+    }
+
+    // Setter
     public void clear() {
         cache.clear();
     }
 
-    /**
-     * Returns the entire cache.
-     *
-     * @return the image cache
-     */
-    public ConcurrentHashMap<String, BufferedImage> get() {
-        return cache;
-    }
-
-    /**
-     * Gets a BufferedImage by its path.
-     *
-     * @param path the image path
-     * @return the corresponding BufferedImage, or null if not found
-     */
-    public BufferedImage get(String path) {
-        return contains(path) ? cache.get(path) : null;
-    }
-
-    /**
-     * Gets the path of a given BufferedImage in the cache.
-     *
-     * @param bufferedImage the BufferedImage
-     * @return the corresponding path, or null if not found
-     */
-    public String get(BufferedImage bufferedImage) {
-        if (contains(bufferedImage))
-            for (String path : cache.keySet())
-                if (cache.get(path).equals(bufferedImage))
-                    return path;
-        return null;
-    }
-
-    /**
-     * Checks if the cache contains an entry for the given path.
-     *
-     * @param path the image path
-     * @return true if present, false otherwise
-     */
-    public boolean contains(String path) {
-        return cache.containsKey(path);
-    }
-
-    /**
-     * Checks if the cache contains the given BufferedImage.
-     *
-     * @param bufferedImage the BufferedImage
-     * @return true if present, false otherwise
-     */
-    public boolean contains(BufferedImage bufferedImage) {
-        return cache.containsValue(bufferedImage);
-    }
-
-    /**
-     * Checks if the cache is empty.
-     *
-     * @return true if the cache is empty, false otherwise
-     */
-    public boolean isEmpty() {
-        return cache.isEmpty();
-    }
-
-    /**
-     * Returns the number of cached images.
-     *
-     * @return the size of the cache
-     */
+    // Getter
     public int size() {
         return cache.size();
+    }
+
+    public boolean isEmpty() {
+        return cache.isEmpty();
     }
 }

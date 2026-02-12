@@ -5,59 +5,51 @@ import de.MCmoderSD.imageloader.tools.ImageResizer;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 
-import java.io.IOException;
+void main() {
 
-import java.net.URISyntaxException;
+    // Initialize ImageLoader
+    ImageLoader imageLoader = ImageLoader.getInstance();
 
-@SuppressWarnings("ALL")
-public class Main {
+    // Load, encode, and show image
+    BufferedImage originalImage = imageLoader.loadResource("/samples/sample.png");              // Load from resources
+    String base64Image = ImageEncoder.toBase64(originalImage, Extension.JPG, 0.25f);    // Convert to Base64 with compression
+    BufferedImage compressedImage = imageLoader.loadBase64(base64Image);                      // Load from Base64 string
+    BufferedImage resizedImage = ImageResizer.scale(compressedImage, 0.5f);             // Resize image to 50% of original size
+    showImage(resizedImage);                                                     // Show resized image
+}
 
-    public static void main(String[] args) throws IOException, URISyntaxException {
+// Show image
+private static void showImage(BufferedImage image) {
 
-        // Initialize ImageLoader
-        ImageLoader imageLoader = ImageLoader.getInstance();
+    // Create frame
+    JFrame frame = new JFrame();
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setLocationRelativeTo(null);
+    frame.setSize(image.getWidth(), image.getHeight());
+    frame.setResizable(false);
+    frame.setIconImage(image);
 
-        BufferedImage originalImage = imageLoader.load("/samples/sample.png");              // Load from resources
-        String base64Image = ImageEncoder.toBase64(originalImage, Extension.JPG, 0.25f);    // Convert to Base64 with compression
-        BufferedImage compressedImage = imageLoader.load(base64Image);                      // Load from Base64 string
-        BufferedImage resizedImage = ImageResizer.scale(compressedImage, 0.5f);             // Resize image to 50% of original size
-        showImage(resizedImage, "jpg");                                                     // Show resized image
-    }
+    // Create panel
+    JPanel panel = new JPanel() {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            g.drawImage(image, 0, 0, null);
+        }
+    };
 
-    // Show image
-    private static void showImage(BufferedImage image, String extension) {
+    // Add panel to frame
+    frame.add(panel);
 
-        // Create frame
-        JFrame frame = new JFrame("Image: " + extension);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
-        frame.setSize(image.getWidth(), image.getHeight());
-        frame.setResizable(false);
-        frame.setIconImage(image);
+    // Center frame
+    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
 
-        // Create panel
-        JPanel panel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                g.drawImage(image, 0, 0, null);
-            }
-        };
-
-        // Add panel to frame
-        frame.add(panel);
-
-        // Center frame
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
-
-        // Show frame
-        frame.setVisible(true);
-    }
+    // Show frame
+    frame.setVisible(true);
 }

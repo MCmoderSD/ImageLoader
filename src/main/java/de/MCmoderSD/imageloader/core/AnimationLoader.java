@@ -1,245 +1,234 @@
 package de.MCmoderSD.imageloader.core;
 
 import de.MCmoderSD.imageloader.enums.Extension;
+import de.MCmoderSD.tools.GZIP;
 
 import javax.swing.ImageIcon;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Objects;
+import java.util.Base64;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Singleton class for loading and caching animated images (e.g., GIFs).
- */
-@SuppressWarnings("ALL")
+import static de.MCmoderSD.imageloader.enums.Extension.GIF;
+
+@SuppressWarnings("unused")
 public class AnimationLoader {
 
     // Singleton instance
     private static AnimationLoader instance;
 
-    // Cache for storing loaded ImageIcons
-    private final ConcurrentHashMap<String, ImageIcon> cache;
+    // Attributes
+    private final ConcurrentHashMap<String, byte[]> cache;
+    private final Base64.Decoder base64Decoder;
 
-    /**
-     * Private constructor to enforce singleton pattern.
-     */
+    // Constructor
     private AnimationLoader() {
         cache = new ConcurrentHashMap<>();
+        base64Decoder = Base64.getDecoder();
     }
 
-    /**
-     * Returns the singleton instance of AnimationLoader.
-     *
-     * @return AnimationLoader instance
-     */
+    // Get Singleton Instance
     public static AnimationLoader getInstance() {
         if (instance == null) instance = new AnimationLoader();
         return instance;
     }
 
-    /**
-     * Loads an image from the given path using a relative path.
-     *
-     * @param path the path to the image
-     * @return the loaded ImageIcon
-     * @throws IOException if the image cannot be loaded
-     * @throws URISyntaxException if the path is a malformed URI
-     */
-    public ImageIcon load(String path) throws IOException, URISyntaxException {
-        return load(path, false);
+    // Helper Methods
+    private static byte[] deflate(ImageIcon image) {
+        try {
+            return GZIP.deflateObject(image);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to deflate image", e);
+        }
     }
 
-    /**
-     * Loads an image from the given path.
-     *
-     * @param path the path to the image
-     * @param isAbsolute whether the path is absolute
-     * @return the loaded ImageIcon
-     * @throws IOException if the image cannot be loaded or extension is unsupported
-     * @throws URISyntaxException if the path is a malformed URI
-     */
-    public ImageIcon load(String path, boolean isAbsolute) throws IOException, URISyntaxException {
+    private static ImageIcon inflate(byte[] compressedData) {
+        try {
+            return (ImageIcon) GZIP.inflateObject(compressedData);
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException("Failed to inflate image", e);
+        }
+    }
 
-        // Check Path
-        if (path.isBlank()) throw new IllegalArgumentException("Path cannot be blank");
+    // Read Methods
+    private ImageIcon readResource(String resourcePath) {
 
-        // Check if image is already in cache
-        if (cache.containsKey(path)) return cache.get(path);
+        // Load image from resource
+        try (var resource = ImageLoader.class.getResourceAsStream(resourcePath)) {
 
-        // Reload the image
-        ImageIcon image = reload(path, isAbsolute);
+            // Check if resource exists
+            if (resource == null) throw new IOException("Resource not found: " + resourcePath);
 
-        // Check if image is null
-        if (image == null) throw new IOException("Image could not be loaded: " + path);
+            // Read all data from the resource stream
+            byte[] imageData = resource.readAllBytes();
 
-        // Put image in cache
-        cache.put(path, image);
+            // Validate that data was read
+            if (imageData.length == 0) throw new IOException("Resource is empty: " + resourcePath);
 
-        // Return the loaded image
+            // Parse and return image
+            return new ImageIcon(imageData);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load image from resource: " + resourcePath, e);
+        }
+    }
+
+    private ImageIcon readURL(String url) {
+
+        // Load image from URL
+        try {
+            return new ImageIcon(new URI(url).toURL());
+        } catch (IOException | URISyntaxException e) {
+            throw new RuntimeException("Failed to load image from URL: " + url, e);
+        }
+    }
+
+    private ImageIcon readFile(String filePath) {
+
+        // Load image from File
+        File file = new File(filePath);
+
+        // Check if file exists
+        if (!file.exists()) throw new IllegalArgumentException("File not found: " + filePath);
+
+        // Return image
+        return new ImageIcon(filePath);
+    }
+
+    private ImageIcon readBase64(byte[] data) {
+
+        // Validate Base64 data
+        if (data == null || data.length == 0) throw new IllegalArgumentException("Base64 data cannot be null or empty");
+
+        // Load image from Base64 data
+        return new ImageIcon(data);
+    }
+
+    public ImageIcon loadResource(String resourcePath) {
+
+        // Check Parameters
+        if (resourcePath == null || resourcePath.isBlank()) throw new IllegalArgumentException("Resource path cannot be null or blank");
+
+        // Validate image extension
+        if (Extension.fromString(resourcePath.substring(resourcePath.lastIndexOf(".") + 1)) != GIF) throw new IllegalArgumentException("Unsupported image format: " + resourcePath);
+
+        // Check Cache
+        if (cache.containsKey(resourcePath)) return inflate(cache.get(resourcePath));
+
+        // Load image and cache it
+        ImageIcon image = readResource(resourcePath);
+
+        // Cache
+        cache.put(resourcePath, deflate(image));
+
+        // Return image
         return image;
     }
 
-    /**
-     * Reloads an image from the given path using a relative path.
-     *
-     * @param path the path to the image
-     * @return the reloaded ImageIcon
-     * @throws IOException if the image cannot be loaded
-     * @throws URISyntaxException if the path is a malformed URI
-     */
-    public ImageIcon reload(String path) throws IOException, URISyntaxException {
-        return reload(path, false);
-    }
+    public ImageIcon loadURL(String url) {
 
-    /**
-     * Reloads an image from the given path.
-     *
-     * @param path the path to the image
-     * @param isAbsolute whether the path is absolute
-     * @return the reloaded ImageIcon
-     * @throws IOException if the image cannot be loaded or extension is unsupported
-     * @throws URISyntaxException if the path is a malformed URI
-     */
-    public ImageIcon reload(String path, boolean isAbsolute) throws IOException, URISyntaxException {
-
-        // Check Path
-        if (path.isBlank()) throw new IllegalArgumentException("Path cannot be blank");
+        // Check Parameters
+        if (url == null || url.isBlank()) throw new IllegalArgumentException("URL cannot be null or blank");
 
         // Validate image extension
-        boolean isBase64 = path.startsWith("data:image/");
-        Extension extension = isBase64 ?
-                Extension.fromString(path.substring("data:image/".length(), path.indexOf(";base64")).toLowerCase()) :
-                Extension.fromString(path.substring(path.lastIndexOf(".") + 1).toLowerCase());
+        if (Extension.fromString(url.substring(url.lastIndexOf(".") + 1)) != GIF) throw new IllegalArgumentException("Unsupported image format: " + url);
 
-        // Check if the extension is supported
-        if (extension != Extension.GIF)
-            throw new IOException("Unsupported image extension: " + extension.getExtension());
+        // Check Cache
+        if (cache.containsKey(url)) return inflate(cache.get(url));
 
-        // Load image based on path type
-        if (isAbsolute) return new ImageIcon(path);                                                                     // Absolute path
-        if (path.startsWith("http://") || path.startsWith("https://")) return new ImageIcon(new URI(path).toURL());     // URL path
-        while (path.startsWith("/")) path = path.substring(1);                                                      // Remove leading slash
-        return new ImageIcon(Objects.requireNonNull(AnimationLoader.class.getClassLoader().getResource(path)));         // Resource path
+        // Load image and cache it
+        ImageIcon image = readURL(url);
+
+        // Cache
+        cache.put(url, deflate(image));
+
+        // Return image
+        return image;
     }
 
-    /**
-     * Adds an ImageIcon to the cache.
-     *
-     * @param path the image path key
-     * @param image the ImageIcon to store
-     * @return the previous ImageIcon associated with the path, or null if none
-     */
-    public ImageIcon add(String path, ImageIcon image) {
-        return cache.put(path, image);
+    public ImageIcon loadFile(String filePath) {
+
+        // Check Parameters
+        if (filePath == null || filePath.isBlank()) throw new IllegalArgumentException("File path cannot be null or blank");
+
+        // Validate image extension
+        if (Extension.fromString(filePath.substring(filePath.lastIndexOf(".") + 1)) != GIF)  throw new IllegalArgumentException("Unsupported image format: " + filePath);
+
+        // Check Cache
+        if (cache.containsKey(filePath)) return inflate(cache.get(filePath));
+
+        // Load image and cache it
+        ImageIcon image = readFile(filePath);
+
+        // Cache
+        cache.put(filePath, deflate(image));
+
+        // Return image
+        return image;
     }
 
-    /**
-     * Replaces an existing ImageIcon in the cache.
-     *
-     * @param path the image path key
-     * @param image the new ImageIcon
-     * @return the previous ImageIcon associated with the path
-     */
-    public ImageIcon replace(String path, ImageIcon image) {
-        return cache.replace(path, image);
+    public ImageIcon loadBase64(String base64) {
+
+        // Check Parameters
+        if (base64 == null || base64.isBlank()) throw new IllegalArgumentException("Base64 string cannot be null or blank");
+
+        // Validate Base64 format
+        if (!base64.startsWith("data:image/") || !base64.contains(";base64,")) throw new IllegalArgumentException("Invalid Base64 image format - expected format: data:image/{extension};base64,{data}");
+
+        // Validate image extension
+        String extensionPart = base64.substring("data:image/".length(), base64.indexOf(";base64")).toLowerCase();
+        if (Extension.fromString(extensionPart) != GIF) throw new IllegalArgumentException("Unsupported image format in Base64 string: " + extensionPart);
+
+        // Extract the actual Base64 data
+        String base64Data = base64.substring(base64.indexOf(",") + 1);
+
+        // Check Cache
+        if (cache.containsKey(base64)) return inflate(cache.get(base64));
+
+        // Load image and cache it
+        ImageIcon image = readBase64(base64Decoder.decode(base64Data));
+
+        // Cache
+        cache.put(base64, deflate(image));
+
+        // Return image
+        return image;
     }
 
-    /**
-     * Removes an ImageIcon from the cache by path.
-     *
-     * @param path the path of the image
-     * @return the removed ImageIcon
-     */
-    public ImageIcon remove(String path) {
-        return cache.remove(path);
+    // Reload Methods
+    public ImageIcon reloadResource(String resourcePath) {
+        cache.remove(resourcePath);
+        return loadResource(resourcePath);
     }
 
-    /**
-     * Removes an ImageIcon from the cache by its value.
-     *
-     * @param image the ImageIcon to remove
-     * @return the removed ImageIcon
-     */
-    public ImageIcon remove(ImageIcon image) {
-        return cache.remove(get(image));
+    public ImageIcon reloadURL(String url) {
+        cache.remove(url);
+        return loadURL(url);
     }
 
-    /**
-     * Clears the entire image cache.
-     */
+    public ImageIcon reloadFile(String filePath) {
+        cache.remove(filePath);
+        return loadFile(filePath);
+    }
+
+    public ImageIcon reloadBase64(String base64) {
+        cache.remove(base64);
+        return loadBase64(base64);
+    }
+
+    // Setter
     public void clear() {
         cache.clear();
     }
 
-    /**
-     * Returns the entire cache.
-     *
-     * @return the image cache
-     */
-    public ConcurrentHashMap<String, ImageIcon> get() {
-        return cache;
-    }
-
-    /**
-     * Gets an ImageIcon by its path.
-     *
-     * @param path the image path
-     * @return the corresponding ImageIcon, or null if not found
-     */
-    public ImageIcon get(String path) {
-        return contains(path) ? cache.get(path) : null;
-    }
-
-    /**
-     * Gets the path of a given ImageIcon in the cache.
-     *
-     * @param bufferedImage the ImageIcon
-     * @return the corresponding path, or null if not found
-     */
-    public String get(ImageIcon bufferedImage) {
-        if (contains(bufferedImage))
-            for (String path : cache.keySet())
-                if (cache.get(path).equals(bufferedImage))
-                    return path;
-        return null;
-    }
-
-    /**
-     * Checks if the cache contains an entry for the given path.
-     *
-     * @param path the image path
-     * @return true if present, false otherwise
-     */
-    public boolean contains(String path) {
-        return cache.containsKey(path);
-    }
-
-    /**
-     * Checks if the cache contains the given ImageIcon.
-     *
-     * @param bufferedImage the ImageIcon
-     * @return true if present, false otherwise
-     */
-    public boolean contains(ImageIcon bufferedImage) {
-        return cache.containsValue(bufferedImage);
-    }
-
-    /**
-     * Checks if the cache is empty.
-     *
-     * @return true if the cache is empty, false otherwise
-     */
-    public boolean isEmpty() {
-        return cache.isEmpty();
-    }
-
-    /**
-     * Returns the number of cached images.
-     *
-     * @return the size of the cache
-     */
+    // Getter
     public int size() {
         return cache.size();
+    }
+
+    public boolean isEmpty() {
+        return cache.isEmpty();
     }
 }

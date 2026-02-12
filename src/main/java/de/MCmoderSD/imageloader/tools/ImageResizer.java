@@ -1,39 +1,22 @@
 package de.MCmoderSD.imageloader.tools;
 
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
-/**
- * Utility class for resizing and scaling {@link BufferedImage} instances with high quality.
- */
-@SuppressWarnings("ALL")
+import static java.awt.RenderingHints.*;
+
+@SuppressWarnings("unused")
 public class ImageResizer {
 
-    /**
-     * Resizes a {@link BufferedImage} to a square of the given size.
-     *
-     * @param image the image to resize
-     * @param size the width and height to resize to
-     * @return the resized image
-     * @throws IllegalArgumentException if size is non-positive
-     */
+
     public static BufferedImage resize(BufferedImage image, int size) {
         return resize(image, size, size);
     }
 
-    /**
-     * Resizes a {@link BufferedImage} to the given width and height using high-quality rendering.
-     *
-     * @param image the image to resize
-     * @param width the desired width
-     * @param height the desired height
-     * @return the resized image
-     * @throws IllegalArgumentException if width or height is non-positive
-     */
     public static BufferedImage resize(BufferedImage image, int width, int height) {
 
         // Validate input parameters
+        if (image == null) throw new IllegalArgumentException("Image cannot be null");
         if (width <= 0 || height <= 0) throw new IllegalArgumentException("Width and height must be positive values");
 
         // Create a new BufferedImage with the desired dimensions
@@ -43,13 +26,13 @@ public class ImageResizer {
         Graphics2D g = resizedImage.createGraphics();
 
         // Set rendering hints for better quality
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-        g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-        g.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
-        g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+        g.setRenderingHint(KEY_INTERPOLATION, VALUE_INTERPOLATION_BICUBIC);
+        g.setRenderingHint(KEY_RENDERING, VALUE_RENDER_QUALITY);
+        g.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(KEY_ALPHA_INTERPOLATION, VALUE_ALPHA_INTERPOLATION_QUALITY);
+        g.setRenderingHint(KEY_COLOR_RENDERING, VALUE_COLOR_RENDER_QUALITY);
+        g.setRenderingHint(KEY_DITHERING, VALUE_DITHER_ENABLE);
+        g.setRenderingHint(KEY_STROKE_CONTROL, VALUE_STROKE_PURE);
 
         // Draw the original image scaled to the new dimensions
         g.drawImage(image, 0, 0, width, height, null);
@@ -59,29 +42,31 @@ public class ImageResizer {
         return resizedImage;
     }
 
-    /**
-     * Scales a {@link BufferedImage} by a given scale factor (float).
-     *
-     * @param image the image to scale
-     * @param scale the scale factor
-     * @return the scaled image
-     */
     public static BufferedImage scale(BufferedImage image, float scale) {
+
+        // Validate input parameters
+        if (image == null) throw new IllegalArgumentException("Image cannot be null");
+        if (scale <= 0f) throw new IllegalArgumentException("Scale must be a positive value");
+
+        // Calculate new dimensions based on the scale factor
         var newWidth = (int) (image.getWidth() * scale);
         var newHeight = (int) (image.getHeight() * scale);
+
+        // Return the resized image
         return resize(image, newWidth, newHeight);
     }
 
-    /**
-     * Scales a {@link BufferedImage} by a given scale factor (double).
-     *
-     * @param image the image to scale
-     * @param scale the scale factor
-     * @return the scaled image
-     */
     public static BufferedImage scale(BufferedImage image, double scale) {
+
+        // Validate input parameters
+        if (image == null) throw new IllegalArgumentException("Image cannot be null");
+        if (scale <= 0d) throw new IllegalArgumentException("Scale must be a positive value");
+
+        // Calculate new dimensions based on the scale factor
         var newWidth = (int) (image.getWidth() * scale);
         var newHeight = (int) (image.getHeight() * scale);
+
+        // Return the resized image
         return resize(image, newWidth, newHeight);
     }
 }

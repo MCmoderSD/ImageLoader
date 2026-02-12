@@ -1,88 +1,74 @@
 import de.MCmoderSD.imageloader.core.AnimationLoader;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
+import javax.swing.ImageIcon;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
 
-import java.io.IOException;
+void main() {
 
-import java.net.URISyntaxException;
+    // Initialize AnimationLoader
+    AnimationLoader animationLoader = AnimationLoader.getInstance();
 
-@SuppressWarnings("ALL")
-public class AnimationExample {
+    // Load from resources
+    ImageIcon animation = animationLoader.loadResource("/animations/apple.gif");
+    showAnimation(animation, "Resource");
 
-    public static void main(String[] args) {
-        try {
+    // Load from path
+    animation = animationLoader.loadFile("src/test/resources/animations/apple.gif");
+    showAnimation(animation, "Path");
 
-            // Initialize AnimationLoader
-            AnimationLoader animationLoader = AnimationLoader.getInstance();
+    // Load from URL
+    animation = animationLoader.loadURL("https://raw.githubusercontent.com/MCmoderSD/ImageLoader/refs/heads/master/src/test/resources/animations/apple.gif");
+    showAnimation(animation, "URL");
+}
 
-            // Load from resources
-            ImageIcon animation = animationLoader.load("/animations/apple.gif");
-            showAnimation(animation, "gif");
+// Show image
+private static void showAnimation(ImageIcon animation, String title) {
 
-            // Load from absolute path
-            animation = animationLoader.load("C:/Users/MCmoderSD/IdeaProjects/Packages/ImageLoader/src/test/resources/animations/apple.gif", true);
-            showAnimation(animation, "gif");
+    // Create frame
+    JFrame frame = new JFrame(title);
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setLocationRelativeTo(null);
+    frame.setSize(140, 140);
+    frame.setResizable(false);
+    frame.setIconImage(animation.getImage());
 
-            // Load from URL
-            animation = animationLoader.load("https://raw.githubusercontent.com/MCmoderSD/ImageLoader/refs/heads/master/src/test/resources/animations/apple.gif");
-            showAnimation(animation, "gif");
-
-        } catch (IOException | URISyntaxException e) {
-            System.err.println("An error occurred while loading images: " + e.getMessage());
+    // Create panel
+    JPanel panel = new JPanel() {
+        @Override
+        protected void paintComponent(Graphics graphics) {
+            super.paintComponent(graphics);
+            Graphics2D g = (Graphics2D) graphics;
+            g.drawImage(animation.getImage(), 0, 0, null);
         }
-    }
+    };
 
-    // Show image
-    private static void showAnimation(ImageIcon animation, String extension) {
+    panel.setPreferredSize(new Dimension(140, 140));
 
-        // Create frame
-        JFrame frame = new JFrame("Image: " + extension);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
-        frame.setSize(140, 140);
-        frame.setResizable(false);
-        frame.setIconImage(animation.getImage());
+    // Add panel to frame
+    frame.add(panel);
 
-        // Create panel
-        JPanel panel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics graphics) {
-                super.paintComponent(graphics);
-                Graphics2D g = (Graphics2D) graphics;
-                g.drawImage(animation.getImage(), 0, 0, null);
+    // Center frame
+    frame.pack();
+    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
+
+    // Show frame
+    frame.setVisible(true);
+
+    new Thread(() -> {
+        while (frame.isVisible()) {
+            panel.repaint();
+            try {
+                //noinspection BusyWait
+                Thread.sleep(1000 / 60); // 60 FPS
+            } catch (InterruptedException e) {
+                System.err.println("An error occurred while showing animation: " + e.getMessage());
             }
-        };
-
-        panel.setPreferredSize(new Dimension(140, 140));
-
-        // Add panel to frame
-        frame.add(panel);
-
-        // Center frame
-        frame.pack();
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
-
-        // Show frame
-        frame.setVisible(true);
-
-        new Thread(() -> {
-            while (frame.isVisible()) {
-                panel.repaint();
-                try {
-                    //noinspection BusyWait
-                    Thread.sleep(1000 / 60); // 60 FPS
-                } catch (InterruptedException e) {
-                    System.err.println("An error occurred while showing animation: " + e.getMessage());
-                }
-            }
-        }).start();
-    }
+        }
+    }).start();
 }

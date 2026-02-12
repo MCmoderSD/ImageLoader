@@ -34,7 +34,7 @@ Add the dependency to your `pom.xml` file:
 <dependency>
     <groupId>de.MCmoderSD</groupId>
     <artifactId>ImageLoader</artifactId>
-    <version>1.3.2</version>
+    <version>1.4.0</version>
 </dependency>
 ```
 
@@ -48,109 +48,96 @@ import de.MCmoderSD.imageloader.core.ImageLoader;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 
-import java.io.IOException;
+void main() {
 
-import java.net.URISyntaxException;
+    // Initialize ImageLoader
+    ImageLoader imageLoader = ImageLoader.getInstance();
 
-@SuppressWarnings("ALL")
-public class ImageExample {
+    // Path to images
+    String resourcePath = "/samples/sample.";
+    String[] extensions = { "jpeg", "jpg", "png", "bmp", "tiff", "gif", "webp" };
 
-    public static void main(String[] args) {
-        try {
+    IO.println("Loading images from resources...");
+    for (String extension : extensions) {
 
-            // Initialize ImageLoader
-            ImageLoader imageLoader = ImageLoader.getInstance();
+        // Debug
+        IO.println("Loading image: " + resourcePath + extension);
 
-            // Path to images
-            String path = "/samples/sample.";
-            String[] extensions = {"jpeg", "jpg", "png", "bmp", "tiff", "gif", "webp"};
+        // Load image
+        BufferedImage image = imageLoader.loadResource(resourcePath + extension);
 
-            System.out.println("Loading images...");
-            for (String extension : extensions) {
+        // Show image
+        showImage(image, extension);
+    }
 
-                // Debug
-                System.out.println("Loading image: " + path + extension);
+    IO.println("Loaded all images.");
+    IO.println("\nLoading images from path...");
 
-                // Load image
-                BufferedImage image = imageLoader.load(path + extension);
+    String path = "src/test/resources" + resourcePath;
+    for (String extension : extensions) {
 
-                // Show image
-                showImage(image, extension);
-            }
+        // Debug
+        IO.println("Loading image: " + path + extension);
 
-            System.out.println("Loaded all images.");
-            System.out.println("Loading images from absolute path...");
+        // Load image
+        BufferedImage image = imageLoader.loadFile(path + extension);
 
-            String absolute = "C:/Users/MCmoderSD/IdeaProjects/Packages/ImageLoader/src/test/resources";
-            for (String extension : extensions) {
+        // Show image
+        showImage(image, extension);
+    }
 
-                // Debug
-                System.out.println("Loading image: " + absolute + path + extension);
+    IO.println("Loaded all images.");
+    IO.println("\nLoading images from URL...");
 
-                // Load image
-                BufferedImage image = imageLoader.load(absolute + path + extension, true);
+    String url = "https://raw.githubusercontent.com/MCmoderSD/ImageLoader/refs/heads/master/src/test/resources/samples/sample.";
+    for (String extension : extensions) {
 
-                // Show image
-                showImage(image, extension);
-            }
+        // Debug
+        IO.println("Loading image: " + url + extension);
 
-            System.out.println("Loaded all images from absolute path.");
-            System.out.println("Loading images from URL...");
+        // Load image
+        BufferedImage image = imageLoader.loadURL(url + extension);
 
-            String url = "https://raw.githubusercontent.com/MCmoderSD/ImageLoader/refs/heads/master/src/test/resources/samples/sample.";
-            for (String extension : extensions) {
+        // Show image
+        showImage(image, extension);
+    }
+    IO.println("Loaded all images from URL.");
+}
 
-                // Debug
-                System.out.println("Loading image: " + url + extension);
+// Show image
+private static void showImage(BufferedImage image, String extension) {
 
-                // Load image
-                BufferedImage image = imageLoader.load(url + extension, false);
+    // Create frame
+    JFrame frame = new JFrame("Image: " + extension);
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setLocationRelativeTo(null);
+    frame.setSize(1200, 900);
+    frame.setResizable(false);
+    frame.setIconImage(image);
 
-                // Show image
-                showImage(image, extension);
-            }
-            System.out.println("Loaded all images from URL.");
-        } catch (IOException | URISyntaxException e) {
-            System.err.println("An error occurred while loading images: " + e.getMessage());
+    // Create panel
+    JPanel panel = new JPanel() {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            g.drawImage(image, 0, 0, null);
         }
-    }
+    };
 
-    // Show image
-    private static void showImage(BufferedImage image, String extension) {
+    // Add panel to frame
+    frame.add(panel);
 
-        // Create frame
-        JFrame frame = new JFrame("Image: " + extension);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
-        frame.setSize(1200, 900);
-        frame.setResizable(false);
-        frame.setIconImage(image);
+    // Center frame
+    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
 
-        // Create panel
-        JPanel panel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                g.drawImage(image, 0, 0, null);
-            }
-        };
-
-        // Add panel to frame
-        frame.add(panel);
-
-        // Center frame
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
-
-        // Show frame
-        frame.setVisible(true);
-    }
+    // Show frame
+    frame.setVisible(true);
 }
 ```
 
@@ -159,91 +146,77 @@ public class ImageExample {
 ```java
 import de.MCmoderSD.imageloader.core.AnimationLoader;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
+import javax.swing.ImageIcon;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
 
-import java.io.IOException;
+void main() {
 
-import java.net.URISyntaxException;
+    // Initialize AnimationLoader
+    AnimationLoader animationLoader = AnimationLoader.getInstance();
 
-@SuppressWarnings("ALL")
-public class AnimationExample {
+    // Load from resources
+    ImageIcon animation = animationLoader.loadResource("/animations/apple.gif");
+    showAnimation(animation, "Resource");
 
-    public static void main(String[] args) {
-        try {
+    // Load from path
+    animation = animationLoader.loadFile("src/test/resources/animations/apple.gif");
+    showAnimation(animation, "Path");
 
-            // Initialize AnimationLoader
-            AnimationLoader animationLoader = AnimationLoader.getInstance();
+    // Load from URL
+    animation = animationLoader.loadURL("https://raw.githubusercontent.com/MCmoderSD/ImageLoader/refs/heads/master/src/test/resources/animations/apple.gif");
+    showAnimation(animation, "URL");
+}
 
-            // Load from resources
-            ImageIcon animation = animationLoader.load("/animations/apple.gif");
-            showAnimation(animation, "gif");
+// Show image
+private static void showAnimation(ImageIcon animation, String title) {
 
-            // Load from absolute path
-            animation = animationLoader.load("C:/Users/MCmoderSD/IdeaProjects/Packages/ImageLoader/src/test/resources/animations/apple.gif", true);
-            showAnimation(animation, "gif");
+    // Create frame
+    JFrame frame = new JFrame(title);
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setLocationRelativeTo(null);
+    frame.setSize(140, 140);
+    frame.setResizable(false);
+    frame.setIconImage(animation.getImage());
 
-            // Load from URL
-            animation = animationLoader.load("https://raw.githubusercontent.com/MCmoderSD/ImageLoader/refs/heads/master/src/test/resources/animations/apple.gif");
-            showAnimation(animation, "gif");
-
-        } catch (IOException | URISyntaxException e) {
-            System.err.println("An error occurred while loading images: " + e.getMessage());
+    // Create panel
+    JPanel panel = new JPanel() {
+        @Override
+        protected void paintComponent(Graphics graphics) {
+            super.paintComponent(graphics);
+            Graphics2D g = (Graphics2D) graphics;
+            g.drawImage(animation.getImage(), 0, 0, null);
         }
-    }
+    };
 
-    // Show image
-    private static void showAnimation(ImageIcon animation, String extension) {
+    panel.setPreferredSize(new Dimension(140, 140));
 
-        // Create frame
-        JFrame frame = new JFrame("Image: " + extension);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
-        frame.setSize(140, 140);
-        frame.setResizable(false);
-        frame.setIconImage(animation.getImage());
+    // Add panel to frame
+    frame.add(panel);
 
-        // Create panel
-        JPanel panel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics graphics) {
-                super.paintComponent(graphics);
-                Graphics2D g = (Graphics2D) graphics;
-                g.drawImage(animation.getImage(), 0, 0, null);
+    // Center frame
+    frame.pack();
+    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
+
+    // Show frame
+    frame.setVisible(true);
+
+    new Thread(() -> {
+        while (frame.isVisible()) {
+            panel.repaint();
+            try {
+                //noinspection BusyWait
+                Thread.sleep(1000 / 60); // 60 FPS
+            } catch (InterruptedException e) {
+                System.err.println("An error occurred while showing animation: " + e.getMessage());
             }
-        };
-
-        panel.setPreferredSize(new Dimension(140, 140));
-
-        // Add panel to frame
-        frame.add(panel);
-
-        // Center frame
-        frame.pack();
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
-
-        // Show frame
-        frame.setVisible(true);
-
-        new Thread(() -> {
-            while (frame.isVisible()) {
-                panel.repaint();
-                try {
-                    //noinspection BusyWait
-                    Thread.sleep(1000 / 60); // 60 FPS
-                } catch (InterruptedException e) {
-                    System.err.println("An error occurred while showing animation: " + e.getMessage());
-                }
-            }
-        }).start();
-    }
+        }
+    }).start();
 }
 ```
 
@@ -257,60 +230,52 @@ import de.MCmoderSD.imageloader.tools.ImageResizer;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 
-import java.io.IOException;
+void main() {
 
-import java.net.URISyntaxException;
+    // Initialize ImageLoader
+    ImageLoader imageLoader = ImageLoader.getInstance();
 
-@SuppressWarnings("ALL")
-public class Main {
+    // Load, encode, and show image
+    BufferedImage originalImage = imageLoader.loadResource("/samples/sample.png");              // Load from resources
+    String base64Image = ImageEncoder.toBase64(originalImage, Extension.JPG, 0.25f);    // Convert to Base64 with compression
+    BufferedImage compressedImage = imageLoader.loadBase64(base64Image);                      // Load from Base64 string
+    BufferedImage resizedImage = ImageResizer.scale(compressedImage, 0.5f);             // Resize image to 50% of original size
+    showImage(resizedImage);                                                     // Show resized image
+}
 
-    public static void main(String[] args) throws IOException, URISyntaxException {
+// Show image
+private static void showImage(BufferedImage image) {
 
-        // Initialize ImageLoader
-        ImageLoader imageLoader = ImageLoader.getInstance();
+    // Create frame
+    JFrame frame = new JFrame();
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setLocationRelativeTo(null);
+    frame.setSize(image.getWidth(), image.getHeight());
+    frame.setResizable(false);
+    frame.setIconImage(image);
 
-        BufferedImage originalImage = imageLoader.load("/samples/sample.png");              // Load from resources
-        String base64Image = ImageEncoder.toBase64(originalImage, Extension.JPG, 0.25f);    // Convert to Base64 with compression
-        BufferedImage compressedImage = imageLoader.load(base64Image);                      // Load from Base64 string
-        BufferedImage resizedImage = ImageResizer.scale(compressedImage, 0.5f);             // Resize image to 50% of original size
-        showImage(resizedImage, "jpg");                                                     // Show resized image
-    }
+    // Create panel
+    JPanel panel = new JPanel() {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            g.drawImage(image, 0, 0, null);
+        }
+    };
 
-    // Show image
-    private static void showImage(BufferedImage image, String extension) {
+    // Add panel to frame
+    frame.add(panel);
 
-        // Create frame
-        JFrame frame = new JFrame("Image: " + extension);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
-        frame.setSize(image.getWidth(), image.getHeight());
-        frame.setResizable(false);
-        frame.setIconImage(image);
+    // Center frame
+    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
 
-        // Create panel
-        JPanel panel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                g.drawImage(image, 0, 0, null);
-            }
-        };
-
-        // Add panel to frame
-        frame.add(panel);
-
-        // Center frame
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
-
-        // Show frame
-        frame.setVisible(true);
-    }
+    // Show frame
+    frame.setVisible(true);
 }
 ```
