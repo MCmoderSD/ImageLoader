@@ -88,7 +88,7 @@ public class AnimationLoader {
     private ImageIcon readFile(String filePath) {
 
         // Load image from File
-        File file = new File(filePath);
+        var file = new File(filePath);
 
         // Check if file exists
         if (!file.exists()) throw new IllegalArgumentException("File not found: " + filePath);
@@ -118,7 +118,7 @@ public class AnimationLoader {
         if (cache.containsKey(resourcePath)) return inflate(cache.get(resourcePath));
 
         // Load image and cache it
-        ImageIcon image = readResource(resourcePath);
+        var image = readResource(resourcePath);
 
         // Cache
         cache.put(resourcePath, deflate(image));
@@ -139,7 +139,7 @@ public class AnimationLoader {
         if (cache.containsKey(url)) return inflate(cache.get(url));
 
         // Load image and cache it
-        ImageIcon image = readURL(url);
+        var image = readURL(url);
 
         // Cache
         cache.put(url, deflate(image));
@@ -160,7 +160,7 @@ public class AnimationLoader {
         if (cache.containsKey(filePath)) return inflate(cache.get(filePath));
 
         // Load image and cache it
-        ImageIcon image = readFile(filePath);
+        var image = readFile(filePath);
 
         // Cache
         cache.put(filePath, deflate(image));
@@ -178,17 +178,17 @@ public class AnimationLoader {
         if (!base64.startsWith("data:image/") || !base64.contains(";base64,")) throw new IllegalArgumentException("Invalid Base64 image format - expected format: data:image/{extension};base64,{data}");
 
         // Validate image extension
-        String extensionPart = base64.substring("data:image/".length(), base64.indexOf(";base64")).toLowerCase();
+        var extensionPart = base64.substring("data:image/".length(), base64.indexOf(";base64")).toLowerCase();
         if (Extension.fromString(extensionPart) != GIF) throw new IllegalArgumentException("Unsupported image format in Base64 string: " + extensionPart);
 
         // Extract the actual Base64 data
-        String base64Data = base64.substring(base64.indexOf(",") + 1);
+        var base64Data = base64.substring(base64.indexOf(",") + 1);
 
         // Check Cache
         if (cache.containsKey(base64)) return inflate(cache.get(base64));
 
         // Load image and cache it
-        ImageIcon image = readBase64(base64Decoder.decode(base64Data));
+        var image = readBase64(base64Decoder.decode(base64Data));
 
         // Cache
         cache.put(base64, deflate(image));

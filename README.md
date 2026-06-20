@@ -34,7 +34,7 @@ Add the dependency to your `pom.xml` file:
 <dependency>
     <groupId>de.MCmoderSD</groupId>
     <artifactId>ImageLoader</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2</version>
 </dependency>
 ```
 
@@ -48,7 +48,6 @@ import de.MCmoderSD.imageloader.core.ImageLoader;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
@@ -56,20 +55,20 @@ import java.awt.image.BufferedImage;
 void main() {
 
     // Initialize ImageLoader
-    ImageLoader imageLoader = ImageLoader.getInstance();
+    var imageLoader = ImageLoader.getInstance();
 
     // Path to images
-    String resourcePath = "/samples/sample.";
+    var resourcePath = "/samples/sample.";
     String[] extensions = { "jpeg", "jpg", "png", "bmp", "tiff", "gif", "webp" };
 
     IO.println("Loading images from resources...");
-    for (String extension : extensions) {
+    for (var extension : extensions) {
 
         // Debug
         IO.println("Loading image: " + resourcePath + extension);
 
         // Load image
-        BufferedImage image = imageLoader.loadResource(resourcePath + extension);
+        var image = imageLoader.loadResource(resourcePath + extension);
 
         // Show image
         showImage(image, extension);
@@ -78,14 +77,14 @@ void main() {
     IO.println("Loaded all images.");
     IO.println("\nLoading images from path...");
 
-    String path = "src/test/resources" + resourcePath;
-    for (String extension : extensions) {
+    var path = "src/test/resources" + resourcePath;
+    for (var extension : extensions) {
 
         // Debug
         IO.println("Loading image: " + path + extension);
 
         // Load image
-        BufferedImage image = imageLoader.loadFile(path + extension);
+        var image = imageLoader.loadFile(path + extension);
 
         // Show image
         showImage(image, extension);
@@ -94,26 +93,27 @@ void main() {
     IO.println("Loaded all images.");
     IO.println("\nLoading images from URL...");
 
-    String url = "https://raw.githubusercontent.com/MCmoderSD/ImageLoader/refs/heads/master/src/test/resources/samples/sample.";
-    for (String extension : extensions) {
+    var url = "https://raw.githubusercontent.com/MCmoderSD/ImageLoader/refs/heads/master/src/test/resources/samples/sample.";
+    for (var extension : extensions) {
 
         // Debug
         IO.println("Loading image: " + url + extension);
 
         // Load image
-        BufferedImage image = imageLoader.loadURL(url + extension);
+        var image = imageLoader.loadURL(url + extension);
 
         // Show image
         showImage(image, extension);
     }
+
     IO.println("Loaded all images from URL.");
 }
 
 // Show image
-private static void showImage(BufferedImage image, String extension) {
+void showImage(BufferedImage image, String extension) {
 
     // Create frame
-    JFrame frame = new JFrame("Image: " + extension);
+    var frame = new JFrame("Image: " + extension);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setLocationRelativeTo(null);
     frame.setSize(1200, 900);
@@ -121,7 +121,7 @@ private static void showImage(BufferedImage image, String extension) {
     frame.setIconImage(image);
 
     // Create panel
-    JPanel panel = new JPanel() {
+    var panel = new JPanel() {
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
@@ -133,7 +133,7 @@ private static void showImage(BufferedImage image, String extension) {
     frame.add(panel);
 
     // Center frame
-    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    var dim = Toolkit.getDefaultToolkit().getScreenSize();
     frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
 
     // Show frame
@@ -157,10 +157,10 @@ import java.awt.Toolkit;
 void main() {
 
     // Initialize AnimationLoader
-    AnimationLoader animationLoader = AnimationLoader.getInstance();
+    var animationLoader = AnimationLoader.getInstance();
 
     // Load from resources
-    ImageIcon animation = animationLoader.loadResource("/animations/apple.gif");
+    var animation = animationLoader.loadResource("/animations/apple.gif");
     showAnimation(animation, "Resource");
 
     // Load from path
@@ -173,10 +173,10 @@ void main() {
 }
 
 // Show image
-private static void showAnimation(ImageIcon animation, String title) {
+void showAnimation(ImageIcon animation, String title) {
 
     // Create frame
-    JFrame frame = new JFrame(title);
+    var frame = new JFrame(title);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setLocationRelativeTo(null);
     frame.setSize(140, 140);
@@ -184,7 +184,7 @@ private static void showAnimation(ImageIcon animation, String title) {
     frame.setIconImage(animation.getImage());
 
     // Create panel
-    JPanel panel = new JPanel() {
+    var panel = new JPanel() {
         @Override
         protected void paintComponent(Graphics graphics) {
             super.paintComponent(graphics);
@@ -200,7 +200,7 @@ private static void showAnimation(ImageIcon animation, String title) {
 
     // Center frame
     frame.pack();
-    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    var dim = Toolkit.getDefaultToolkit().getScreenSize();
     frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
 
     // Show frame
@@ -230,7 +230,6 @@ import de.MCmoderSD.imageloader.tools.ImageResizer;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
@@ -238,21 +237,21 @@ import java.awt.image.BufferedImage;
 void main() {
 
     // Initialize ImageLoader
-    ImageLoader imageLoader = ImageLoader.getInstance();
+    var imageLoader = ImageLoader.getInstance();
 
     // Load, encode, and show image
-    BufferedImage originalImage = imageLoader.loadResource("/samples/sample.png");              // Load from resources
-    String base64Image = ImageEncoder.toBase64(originalImage, Extension.JPG, 0.25f);    // Convert to Base64 with compression
-    BufferedImage compressedImage = imageLoader.loadBase64(base64Image);                      // Load from Base64 string
-    BufferedImage resizedImage = ImageResizer.scale(compressedImage, 0.5f);             // Resize image to 50% of original size
-    showImage(resizedImage);                                                     // Show resized image
+    var originalImage = imageLoader.loadResource("/samples/sample.png");            // Load from resources
+    var base64Image = ImageEncoder.toBase64(originalImage, Extension.JPG, 0.25f);   // Convert to Base64 with compression
+    var compressedImage = imageLoader.loadBase64(base64Image);                      // Load from Base64 string
+    var resizedImage = ImageResizer.scale(compressedImage, 0.5f);                   // Resize image to 50% of original size
+    showImage(resizedImage);                                                        // Show resized image
 }
 
 // Show image
-private static void showImage(BufferedImage image) {
+void showImage(BufferedImage image) {
 
     // Create frame
-    JFrame frame = new JFrame();
+    var frame = new JFrame();
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setLocationRelativeTo(null);
     frame.setSize(image.getWidth(), image.getHeight());
@@ -260,7 +259,7 @@ private static void showImage(BufferedImage image) {
     frame.setIconImage(image);
 
     // Create panel
-    JPanel panel = new JPanel() {
+    var panel = new JPanel() {
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
@@ -272,7 +271,7 @@ private static void showImage(BufferedImage image) {
     frame.add(panel);
 
     // Center frame
-    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    var dim = Toolkit.getDefaultToolkit().getScreenSize();
     frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
 
     // Show frame

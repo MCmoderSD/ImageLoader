@@ -55,6 +55,7 @@ public class ImageLoader {
 
             // Parse and return image
             return ImageIO.read(resource);
+
         } catch (IOException e) {
             throw new RuntimeException("Failed to load image from resource: " + resourcePath, e);
         }
@@ -73,7 +74,7 @@ public class ImageLoader {
     private BufferedImage readFile(String filePath) {
 
         // Load image from File
-        File file = new File(filePath);
+        var file = new File(filePath);
 
         // Check if file exists
         if (!file.exists()) throw new IllegalArgumentException("File not found: " + filePath);
@@ -110,7 +111,7 @@ public class ImageLoader {
         if (cache.containsKey(resourcePath)) return cache.get(resourcePath);
 
         // Load image and cache it
-        BufferedImage image = readResource(resourcePath);
+        var image = readResource(resourcePath);
 
         // Check if image was loaded successfully
         if (image == null) throw new RuntimeException("Failed to load image from resource: " + resourcePath);
@@ -134,7 +135,7 @@ public class ImageLoader {
         if (cache.containsKey(url)) return cache.get(url);
 
         // Load image and cache it
-        BufferedImage image = readURL(url);
+        var image = readURL(url);
 
         // Check if image was loaded successfully
         if (image == null) throw new RuntimeException("Failed to load image from URL: " + url);
@@ -158,7 +159,7 @@ public class ImageLoader {
         if (cache.containsKey(filePath)) return cache.get(filePath);
 
         // Load image and cache it
-        BufferedImage image = readFile(filePath);
+        var image = readFile(filePath);
 
         // Check if image was loaded successfully
         if (image == null) throw new RuntimeException("Failed to load image from file: " + filePath);
@@ -179,17 +180,17 @@ public class ImageLoader {
         if (!base64.startsWith("data:image/") || !base64.contains(";base64,")) throw new IllegalArgumentException("Invalid Base64 image format - expected format: data:image/{extension};base64,{data}");
 
         // Validate image extension
-        String extensionPart = base64.substring("data:image/".length(), base64.indexOf(";base64")).toLowerCase();
+        var extensionPart = base64.substring("data:image/".length(), base64.indexOf(";base64")).toLowerCase();
         if (!isValidImageExtension(extensionPart)) throw new IllegalArgumentException("Unsupported image format in Base64 string: " + extensionPart);
 
         // Extract the actual Base64 data
-        String base64Data = base64.substring(base64.indexOf(",") + 1);
+        var base64Data = base64.substring(base64.indexOf(",") + 1);
 
         // Check Cache
         if (cache.containsKey(base64)) return cache.get(base64);
 
         // Load image and cache it
-        BufferedImage image = readBase64(base64Decoder.decode(base64Data));
+        var image = readBase64(base64Decoder.decode(base64Data));
 
         // Check if image was loaded successfully
         if (image == null) throw new RuntimeException("Failed to load image from Base64 string");

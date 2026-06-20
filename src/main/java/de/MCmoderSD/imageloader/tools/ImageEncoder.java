@@ -5,12 +5,10 @@ import de.MCmoderSD.imageloader.enums.Extension;
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
-import java.util.Iterator;
 
 @SuppressWarnings("unused")
 public class ImageEncoder {
@@ -26,19 +24,19 @@ public class ImageEncoder {
         if (extension == null) throw new IllegalArgumentException("Extension cannot be null");
 
         // Create ByteArrayOutputStream
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        var byteArrayOutputStream = new ByteArrayOutputStream();
 
         // Validate image and extension
-        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(extension.getExtension());
+        var writers = ImageIO.getImageWritersByFormatName(extension.getExtension());
         if (!writers.hasNext()) throw new IllegalArgumentException("No ImageWriter for format: " + extension.getExtension());
-        ImageWriter writer = writers.next();
+        var writer = writers.next();
 
         // Write image to ByteArrayOutputStream
         try (var outputStream = ImageIO.createImageOutputStream(byteArrayOutputStream)) {
 
             // Set up ImageWriter
             writer.setOutput(outputStream);
-            ImageWriteParam param = writer.getDefaultWriteParam();
+            var param = writer.getDefaultWriteParam();
 
             // Set compression quality if supported and valid
             if (param.canWriteCompressed() && quality >= 0f && quality <= 1f) {

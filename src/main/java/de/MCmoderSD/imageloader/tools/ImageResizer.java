@@ -1,6 +1,5 @@
 package de.MCmoderSD.imageloader.tools;
 
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import static java.awt.RenderingHints.*;
@@ -20,10 +19,10 @@ public class ImageResizer {
         if (width <= 0 || height <= 0) throw new IllegalArgumentException("Width and height must be positive values");
 
         // Create a new BufferedImage with the desired dimensions
-        BufferedImage resizedImage = new BufferedImage(width, height, image.getType());
+        var resizedImage = new BufferedImage(width, height, image.getType());
 
         // Create graphics object and configure rendering quality
-        Graphics2D g = resizedImage.createGraphics();
+        var g = resizedImage.createGraphics();
 
         // Set rendering hints for better quality
         g.setRenderingHint(KEY_INTERPOLATION, VALUE_INTERPOLATION_BICUBIC);

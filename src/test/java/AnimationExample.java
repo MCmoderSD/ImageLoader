@@ -11,10 +11,10 @@ import java.awt.Toolkit;
 void main() {
 
     // Initialize AnimationLoader
-    AnimationLoader animationLoader = AnimationLoader.getInstance();
+    var animationLoader = AnimationLoader.getInstance();
 
     // Load from resources
-    ImageIcon animation = animationLoader.loadResource("/animations/apple.gif");
+    var animation = animationLoader.loadResource("/animations/apple.gif");
     showAnimation(animation, "Resource");
 
     // Load from path
@@ -27,10 +27,10 @@ void main() {
 }
 
 // Show image
-private static void showAnimation(ImageIcon animation, String title) {
+void showAnimation(ImageIcon animation, String title) {
 
     // Create frame
-    JFrame frame = new JFrame(title);
+    var frame = new JFrame(title);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setLocationRelativeTo(null);
     frame.setSize(140, 140);
@@ -38,7 +38,7 @@ private static void showAnimation(ImageIcon animation, String title) {
     frame.setIconImage(animation.getImage());
 
     // Create panel
-    JPanel panel = new JPanel() {
+    var panel = new JPanel() {
         @Override
         protected void paintComponent(Graphics graphics) {
             super.paintComponent(graphics);
@@ -54,7 +54,7 @@ private static void showAnimation(ImageIcon animation, String title) {
 
     // Center frame
     frame.pack();
-    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    var dim = Toolkit.getDefaultToolkit().getScreenSize();
     frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
 
     // Show frame
