@@ -6,6 +6,8 @@ import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 
+import static java.lang.IO.println;
+
 void main() {
 
     // Initialize ImageLoader
@@ -15,11 +17,11 @@ void main() {
     var resourcePath = "/samples/sample.";
     String[] extensions = { "jpeg", "jpg", "png", "bmp", "tiff", "gif", "webp" };
 
-    IO.println("Loading images from resources...");
+    println("Loading images from resources...");
     for (var extension : extensions) {
 
         // Debug
-        IO.println("Loading image: " + resourcePath + extension);
+        println("Loading image: " + resourcePath + extension);
 
         // Load image
         var image = imageLoader.loadResource(resourcePath + extension);
@@ -28,14 +30,14 @@ void main() {
         showImage(image, extension);
     }
 
-    IO.println("Loaded all images.");
-    IO.println("\nLoading images from path...");
+    println("Loaded all images.");
+    println("\nLoading images from path...");
 
     var path = "src/test/resources" + resourcePath;
     for (var extension : extensions) {
 
         // Debug
-        IO.println("Loading image: " + path + extension);
+        println("Loading image: " + path + extension);
 
         // Load image
         var image = imageLoader.loadFile(path + extension);
@@ -44,14 +46,14 @@ void main() {
         showImage(image, extension);
     }
 
-    IO.println("Loaded all images.");
-    IO.println("\nLoading images from URL...");
+    println("Loaded all images.");
+    println("\nLoading images from URL...");
 
     var url = "https://raw.githubusercontent.com/MCmoderSD/ImageLoader/refs/heads/master/src/test/resources/samples/sample.";
     for (var extension : extensions) {
 
         // Debug
-        IO.println("Loading image: " + url + extension);
+        println("Loading image: " + url + extension);
 
         // Load image
         var image = imageLoader.loadURL(url + extension);
@@ -60,7 +62,7 @@ void main() {
         showImage(image, extension);
     }
 
-    IO.println("Loaded all images from URL.");
+    println("Loaded all images from URL.");
 }
 
 // Show image
