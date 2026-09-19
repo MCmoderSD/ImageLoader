@@ -31,7 +31,7 @@ void main() {
     }
 
     println("Loaded all images.");
-    println("\nLoading images from path...");
+    println("\nLoading images from the path...");
 
     var path = "src/test/resources" + resourcePath;
     for (var extension : extensions) {
